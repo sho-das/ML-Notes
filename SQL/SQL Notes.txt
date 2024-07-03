@@ -1,0 +1,516 @@
+Database-It allows users to store and organize data,useful when dealing with large amount of data
+
+Why spreadsheet?
+>one time analysis
+>Quickly need to chart out something
+>Reasonably data set size
+>Ability for untrained people to work with data
+
+Databases-
+>Data integrity
+>Can handle massive amount of data
+>Quickly combine different datasets
+>Automate steps for reuse
+>Can support data for websites and applications
+
+SQL is the programming language used to communicate with our database
+
+
+
+PostgreSQL--
+PgAdmin is a GUI for you  to connect to a database and write SQL queries
+PostgreSQL is the actual SQL engine that PgAdmin is running
+
+To download we need to--
+postgresql websites
+pgadmin website
+
+
+
+//Creating and Restoring Database--
+Using pgadmin we can easily create new database with just a single right click
+Restore a database,first create a database and then right click and restore
+Delete a database
+
+Learn how to restore only a table schema(just the table names and data types only,not the data)
+Got to restore, just select the file and go to "restore options" and then just select "Only schema", and done
+
+Getting just table schema, when there is already data in the database-
+Go to restore,just select the file and goto "restore options" and then just select "only schema" and "clean before restore"	
+
+
+
+
+
+
+SQL statements--(SQL language is incasesensitive)
+
+SELECT statements-
+select column1,column2 from table_name;
+
+select * from table_name					//data from all the tables
+
+>>We should not "*" as the database server work harder and increase the traffic, and then as a result it slows down our application
+
+
+SELECT with DISTINCT-In a table, there can be many duplicate value.It returns unique values
+select DISTINCT column1,column2 from table_name;
+
+
+SELECT with WHERE-Want a query just particular rows from table validating conditions
+>>Condition can be made using the comparsion operator and to combine two or more conditions we can use AND, OR
+select column1,column2 from table_name where conditions;					
+
+select last_name,first_name from customer where first_name='Jamie';
+select last_name,first_name from customer where first_name='Maria' or last_name='Mgiller';
+select * from payment where amount>2.99 and amount<7.0;
+
+
+
+COUNT-It returns the no. of input rows that match a specific condition of a query.However it does not consider NULL values in the column
+select count(*) from table_name
+eg--select count(*) from payment where amount>2.99 and amount<7.0
+
+COUNT with DISTINCT--count the no. of distinct rows
+select COUNT(DISTINCT column) from table_name
+eg--select COUNT(DISTINCT amount) from payment;
+
+
+
+LIMIT--It allows the limit of no. rows you get back after a query.Useful when wanting to get all columns but not all rows.
+>Goes at the end of query
+eg--select * from customer limit 5;						//returns 5 rows of the query
+
+
+
+ORDER BY statements-
+When you query data from the table,SQL returns the rows in the order that they were inserted into the table.In order to sort the result set, you use the ORDER BY clause in the SELECT statements.The ORDER BY allows you to sort the rows returned from the SELECT statement in ascending or descending order based on criteria.
+select column1,column2 from table_name ORDER BY column1 ASC/DESC;
+eg-select first_name,last_name from customer ORDER BY first_name ASC;
+eg-select first_name,last_name from customer ORDER BY first_name ASC,last_name DESC;		//two people with the same first name, then the last name order by come into effect
+
+
+BETWEEN statement-We use BETWEEN operator to match a value against a range of values
+value BETWEEN low and high			//value>=low and value<=high
+eg--select * from payment WHERE amount BETWEEN 2.99 and 5.99;
+eg--select * from payment WHERE amount BETWEEN 2.99 and 5.99;				//value<2.99 and value>5.99.
+
+
+
+
+IN statement-We use the IN statement with the WHERE clause to check if a value matches any value in the list of values
+The expression returns true if the value matches any value in the list.
+//Subquery
+value IN(value1,value2) 
+eg--select rental_id,customer_id from rental where customer_id In(1,2);
+eg--select rental_id,customer_id from rental where customer_id NOT In(1,2);			//no customer id where value is 1 or 2
+
+
+
+
+LIKE statement-It is used for pattern matching
+Percent %-- is used for matching any sequence of characters
+Underscore _	-- for matching any single character
+>> Percent sign can be used at the beginning, middle or ending
+eg--select first_name,last_name from customer where first_name LIKE 'Jen%';
+eg--select first_name from customer where first_name LIKE 'Ro%ry';
+
+>>Using LIKE it searches for the case sensitive words you searched for
+>>Using ILIKE it make it case insensitive
+eg--select first_name from customer where first_name ILIKE 'ro%ry';
+
+
+
+
+
+
+
+
+
+
+
+
+
+GROUP BY Statements--
+Aggregate function-Mainly used with GROUP BY statement
+MIN--select MIN(amount) from payment;
+MAX-select MAX(amount) from payment;
+AVG--select ROUND(AVG(amount),2) from payment;
+SUM-select SUM(amount) from payment;
+
+
+
+
+GROUP BY--It divides the rows returned from the SELECT statement into groups.
+For each group you can apply an aggregate function like:-
+>Calculating the sum of items
+>Count the no. of items in the groups
+
+select column1, aggregate_function(column2) from table_name GROUP BY column1;
+
+eg--select customer_id,SUM(amount) from payment GROUP BY customer_id
+eg--select staff_id,COUNT(payment_id) from payment GROUP BY staff_id;
+eg--select rating,COUNT(rating) from film GROUP BY rating;
+eg--select rating,ROUND(AVG(rental_rate),2) from film GROUP BY rating;
+
+
+
+
+HAVING--We use with GROUP BY clause to filter group rows that do not satisfy a specified condition.It works almost like WHERE clause
+
+select column1,aggregate_function(column2) from table_name GROUP By column1 HAVING condition;
+
+HAVING clause sets the condition for group rows after the GROUP BY clause applies while the WHERE clause sets the condition for individual rows before GROUP BY clause applies(Main difference)
+
+eg--select customer_id,SUM(amount) from payment GROUP BY customer_id HAVING SUM(amount)>200;
+eg--select store_id,COUNT(customer_id) from customer GROUP BY store_id HAVING COUNT(customer_id)>300;
+eg--select rating,AVG(rental_rate) from film where rating IN ('R','G','PG') GROUP BY rating HAVING AVG(rental_rate)<3;
+
+
+
+
+
+
+
+
+
+
+JOINS--
+
+AS statement-It allows us to rename columns or table selections with an alias
+select first_name AS fname from customer;
+select customer_id,SUM(amount) as Total_spent from payment GROUP BY customer_id;
+
+
+
+
+JOIN statement--It allows you to relate data in one table to the data in other table
+Several kinds of join statement--
+INNER join,OUTER join,SELF join
+
+INNER join--
+To get data from both the tables, we use INNER join in the select statement,We specify the column in both tables from which you want to select data in the select clause
+>>>SELECT A.pka,A.c1,B.pkb,B.c2 from A INNER JOIN B ON A.pka=B.pkb
+
+//We can avoid writing the table name before column if and only if it exists in one table 
+
+select customer.customer_id,first_name,last_name,email,amount,payment_date 
+FROM customer INNER JOIN payment on payment.customer_id=customer.customer_id;
+
+//We can also include ORDER BY/ WHERE clause 		>>WHERE customer.customer_id=2
+
+
+
+JOIN types--
+INNER JOIN-It produces only the set of records that match in both table A and Table B
+>>Select * from TableA INNER JOIN TableB on TableA.name=TableB.name;
+
+FULL OUTER JOIN-It produces the set of all records in TableA and TableB with the matching records from both sides where available.If there is no match, the missing side will contain NULL
+>>Select * from TableA FULL OUTER JOIN TableB on TableA.name=Table.name
+
+LEFT OUTER JOIN-It produces a complete set of records from TableA with the matching records(where available) in TableB.If there is no match, the right side will contain NULL..This ensures that TableA will get all the rows.//more popular
+In RIGHT OUTER JOIN the process is same but the TableB will get all the rows
+>>Select * from TableA LEFT OUTER JOIN TableB on TableA.name=Table.name
+
+LEFT OUTER JOIN with WHERE clause-
+Select * from TableA LEFT OUTER JOIN TableB on TableA.name=TableB.name WHERE TableB.id IS null
+
+
+OUTER JOIN		//we can write LEFT JOIN for the LEFT OUTER JOIN
+
+UNION--gets all the data that is common in table 1 and table 2
+select * from sales2007q1 UNION select * from sales2007q2
+//But the data type of columns should be the same
+
+
+
+
+
+
+
+
+
+Advanced SQL Commands--
+
+Timestamps and Extract-There can be different syntax for the other Sql's
+Extract function extract parts from date
+>extract(unit from date)
+
+We can search on google for "postgresql datetime"
+>>select extract(day from payment_date) from payment;
+
+select SUM(amount),extract(month from payment_date) as month from payment GROUP BY month 
+ORDER BY SUM(amount);
+
+
+
+
+
+Mathematical Functions--
+Allows operation on numerical data type
+
+Mathematical operations-
+select customer_id+rental_id as new_id from payment;
+select customer_id-rental_id as new_id from payment;
+
+Functions--
+select ROUND(AVG(amount),2) from payment;
+
+
+
+
+
+String functions and operators-Refer to documentation
+Allows operation on string data type
+
+select first_name|| ' '|| last_name as full_name from customer;			//concatenation( || )
+
+select first_name,char_length(first_name) from customer;
+
+
+
+
+Subquery--It allows us to use multiple SELECT statement, where we basically have a query within a query
+It is a query which is nested in another query
+
+select title,rental_rate from film where rental_rate < (select AVG(rental_rate) from film);
+//query within query, and query is in almost in WHERE clause
+
+select film_id,title from film where film_id IN (select inventory.film_id from rental
+INNER JOIN inventory on inventory.inventory_id=rental.inventory_id
+where rental_date BETWEEN '2005-05-29' and '2005-05-30') ORDER BY title;
+
+
+
+
+
+
+SELF JOIN statement--
+There is a special case that you join a table to itself.We use self join when you want to combine rows with other rows in the same table.To perform the self join operation, you must use a table alias to help SQL distinguish the left table  from the right table of the same table
+
+select a.customer_id,a.first_name,a.last_name,b.customer_id,b.first_name,b.last_name
+from customer as a ,customer as b
+where a.first_name=b.last_name;
+
+//finding the records where the first_name of the the customer is same as last_name of different customer
+
+
+Another method of writing--
+select a.customer_id,a.first_name,a.last_name,b.customer_id,b.first_name,b.last_name
+from customer as a 
+JOIN customer as b							//this can be left_join also..It is now inner join
+ON a.first_name=b.last_name;
+
+
+
+
+
+
+
+
+
+
+Creating Databases and Tables--
+
+Data Types-
+Boolean						//boolean or bool keyword
+Character					//varchar(n)			//n characters(size)
+Number						//int,	serial(auto increment), float
+Temporal(date-time related data types)		//date,time,timestamp(date& time),timestamptz(timestamp and timezone data)
+special types
+arrays
+
+We need to specify what kind of data type a column should have when we are creating columns
+
+Primary keys-It is a column or a grp of columns that is used to identify a row uniquely in the table.A table can have only one primary key.Good practise to add a primary key to every table
+
+
+CREATE TABLE table_name(
+column_name,data_type PRIMARY KEY
+column_name,data_type
+);
+
+
+Foreign key--It is a key defined in the table that refers to the primary key of the other table
+
+
+
+Create table--
+CREATE TABLE table_name
+(column_name TYPE column_constraint,
+table_constraint)
+
+
+INHERITS existing_table_name;				//this is used to inherit the columns of the existing table
+
+Column COnstraint--
+NOT NULL- the value of the column can't be NULL
+UNIQUE-the value of the column must be unique across the table
+CHECK-enables a check a condition when you insert or update data
+REFERENCES-constraints the value of the column that exists in a column in another table
+
+
+create table account(
+user_id serial PRIMARY KEY,
+username VARCHAR(50) UNIQUE NOT NULL,
+password VARCHAR(50) NOT NULL,
+email VARCHAR(335) UNIQUE NOT NULL,
+created_on TIMESTAMP NOT NULL,
+last_login TIMESTAMP);
+
+
+
+
+
+
+INSERT statement-
+It allows to insert one or more rows into a table at a time
+>>INSERT INTO table(column1,column2) 
+VALUES(value1,value2),
+	  (value1,value2)								//for multiple values to add into more than one row
+
+To insert data that comes from another table:-
+INSERT into table
+SELECT column1,column2
+FROM another_table
+WHERE condition;
+
+>>insert into link_copy
+select * from link
+where name='AMZ';
+
+
+
+example---
+insert into link(url,name)
+VALUES('www.g.com','JOSE');
+
+
+create table link_copy(LIKE link);					//creates a copy of the table.Its whole structure but not data
+
+
+
+
+
+
+UPDATE statment--Update the existing data in the table
+update table
+SET column1=value1,
+column2=value2
+WHERE condition;
+
+//determine which rows you want to update in the condition of the WHERE clause
+
+UPDATE link
+set description='Empty description';
+
+
+UPDATE link
+set description='AMazon'
+where name='AMZ';							//for the particular row where the condition is true
+
+
+UPDATE link
+set description='APna'
+where id=1
+RETURNING id,url,name,description;					//returns the update entries
+
+
+
+
+
+
+
+
+DELETE statment--
+DELETE from table
+where condition;
+
+delete from link where name LIKE 'B%';				//deletes from link where name starts from B
+
+
+
+
+
+
+ALTER TABLE statement--
+>>ALTER TABLE table_name action;
+
+actions--
+add,remove or rename column
+Set default value for the column
+add CHECK constraint to a column
+Rename table
+
+ALTER TABLE link ADD COLUMN active boolean;					//adding column
+ALTER TABLE link DROP COLUMN active;						//deleting column
+ALTER TABLE link RENAME COLUMN title TO new_title_name;			//renaming column
+
+
+ALTER TABLE link RENAME TO url_table;				//renaming the whole table
+
+
+
+
+
+
+
+
+
+DROP TABLE statment--
+>>DROP TABLE [if exists(optional)] table_name;
+
+
+
+CHECK constraint--
+It is a kind of constraint that allows you to specify if a value in a column must meet a specific requirement.It uses a Boolean expression to evaluate the values of the columns.If the values of the column pass the check, then SQL will insert or update those records
+
+CREATE TABLE new_users(
+id serial PRIMARY KEY,
+first_name VARCHAR(50),
+birthdate DATE CHECK(birthdate> '1900-01-01'),			//condition to check
+joindate DATE CHECK(joindate> birthdate),
+salary integer CHECK(salary>4));
+
+
+
+CREATE TABLE checktest(
+sales integer CONSTRAINT positive_sales CHECK (sales>0));			//giving name to the constraint using "constraint" keyword
+
+//Error appears when we insert wrong values as the condition is not satisfied
+
+
+
+
+
+
+
+
+NOT NULL constraint--
+It is unknown or missing information
+It is inserted after the column while defining the table
+
+
+
+
+
+
+
+VIEWS--It is a database object that is of a stored query.It is a logical table that represents data of one or more underlying tables through a Select statement.It does not store data physically.
+View helps simplify the complexity of a query a view, which is based on a complex query.
+
+>>CREATE VIEW view_name AS query
+
+CREATE VIEW customer_info as 
+select first_name,last_name,email,address,phone
+FROM customer
+JOIN address
+ON customer.address_id=address.address_id;
+
+
+
+select * from customer_info;				//it saves the data by just viewing it
+
+
+
+#ends
